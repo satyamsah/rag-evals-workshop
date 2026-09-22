@@ -1,0 +1,8 @@
+anthropic>=0.34.0
+ragas>=0.1.21
+datasets>=2.20.0
+langchain-community>=0.2.0
+langchain-anthropic>=0.1.0
+faiss-cpu>=1.8.0
+python-dotenv>=1.0.0
+rich>=13.7.0
