@@ -56,8 +56,8 @@ issue derail the room. Move on after 10 minutes regardless.
 Before we talk about evaluation, let's make sure we understand the system we
 are evaluating.
 
-A large language model is trained on a large amount of data, but it does not
-automatically know the latest information or the private information inside
+A **large language model** is trained on a large amount of data, but it does not
+automatically know the **latest information** or the **private information** inside
 your organization.
 
 For example, imagine we ask:
@@ -82,14 +82,14 @@ Generate an answer
 ```
 
 Instead of asking the LLM to answer entirely from what it learned during
-training, we first retrieve relevant documents and provide them as context.
+training, we first **retrieve relevant documents** and provide them as **context**.
 
 ---
 
 ### What happens inside a RAG system?
 
-Before somebody asks a question, we first need to prepare our documents so
-that they can be searched efficiently.
+Before somebody asks a question, we first need to **prepare our documents** so
+that they can be **searched efficiently**.
 
 Think about a RAG system as having two major stages:
 
@@ -132,7 +132,7 @@ These could be:
 - Any other information we want the LLM to use
 
 The important thing is that this information is available to our system even
-if it was not part of the LLM's original training data.
+if it was **not part of the LLM's original training data**.
 
 ### Step 2 — Chunking
 
@@ -140,10 +140,10 @@ Large documents are usually split into smaller pieces called **chunks**.
 
 Why do we do this?
 
-Because when a user asks a question, we usually don't want to send an entire
-large document to the LLM.
+Because when a user asks a question, we usually don't want to send an **entire
+large document** to the LLM.
 
-We want to find the smaller section that is actually relevant to the question.
+We want to find the **smaller section** that is actually **relevant to the question**.
 
 ```text
 Large document
@@ -168,7 +168,7 @@ Now we need a way to search these chunks based on their meaning.
 
 This is where **embeddings** come in.
 
-An embedding converts text into a numerical representation — a vector.
+An embedding converts text into a **numerical representation** — a **vector**.
 
 For example:
 
@@ -192,19 +192,19 @@ And the user asks:
 
 > **"Who directed Inception?"**
 
-The wording in the question is not exactly the same as the wording in the
+The **wording** in the question is not exactly the same as the wording in the
 document.
 
-Embeddings allow us to compare the meaning of the question with the meaning
-of the document chunks and find relevant chunks even when the wording is
-different.
+Embeddings allow us to compare the **meaning** of the question with the meaning
+of the document chunks and find relevant chunks even when the **wording is
+different**.
 
-That is the important intuition behind semantic search.
+That is the important intuition behind **semantic search**.
 
 ### Step 4 — Indexing
 
-Once we have converted our document chunks into vectors, we need to store
-them somewhere that allows us to search efficiently.
+Once we have converted our document chunks into vectors, we need to **store
+them** somewhere that allows us to **search efficiently**.
 
 That is where a vector index comes in.
 
@@ -222,10 +222,10 @@ Vector index
 Efficient similarity search
 ```
 
-When a user asks a question, we also create an embedding for the question
-and search the index for the closest vectors.
+When a user asks a question, we also create an **embedding for the question**
+and search the index for the **closest vectors**.
 
-Those closest chunks become our retrieved context.
+Those closest chunks become our **retrieved context**.
 
 ---
 
@@ -374,10 +374,10 @@ But our retriever returns:
 
 > "Everything Everywhere All at Once won seven Academy Awards."
 
-This is related to the movie, but it does not contain the information needed to
+This is related to the movie, but it does **not contain the information needed** to
 answer the question.
 
-This is a **retrieval symptom**. The root cause could be retrieval itself, or something earlier such as chunking, embeddings, indexing, or ingestion.
+This is a **retrieval symptom**. The root cause could be **retrieval itself**, or something earlier such as **chunking**, **embeddings**, indexing, or ingestion.
 
 ### Failure 2 — We retrieved the right information, but the LLM ignored it
 
@@ -397,7 +397,7 @@ This time, retrieval worked.
 
 The correct information was already available to the LLM.
 
-The problem is that the generated answer was not grounded in the retrieved
+The problem is that the **generated answer was not grounded** in the retrieved
 context.
 
 ### Failure 3 — The answer is related, but doesn't actually answer the question
@@ -410,7 +410,7 @@ The LLM answers:
 
 > "Hans Zimmer is a famous film composer known for many works."
 
-This mentions the right person, but it doesn't directly answer the question.
+This mentions the right person, but it **doesn't directly answer the question**.
 
 The answer should have been:
 
@@ -442,8 +442,8 @@ These map to the three metrics we will use.
 
 > **Did our retrieval process find the information needed to answer the question?**
 
-If the answer is in our document collection but our retriever fails to
-surface the relevant document or chunk, Context Recall will be low.
+If the answer is in our document collection but our retriever **fails to
+surface the relevant document or chunk**, Context Recall will be low.
 
 Things that can cause this include:
 
@@ -467,7 +467,7 @@ But the LLM says:
 
 > "Oppenheimer won 13 Academy Awards."
 
-The correct document was retrieved, but the answer is not supported by that
+The **correct document was retrieved**, but the answer is **not supported** by that
 document.
 
 That is a faithfulness problem.
@@ -507,7 +507,7 @@ But imagine we have:
 - A changed prompt
 - A new retrieval strategy
 
-We need a repeatable way to tell whether things got better or worse.
+We need a **repeatable way** to tell whether things got better or worse.
 
 That is where **RAGAS** comes in — and we will get to it in Part 3.
 
@@ -656,9 +656,9 @@ It runs a small LLM internally (we point it at Claude haiku) to judge:
 - Whether the answer is on-topic → **Answer Relevancy**
 - Whether the retrieved context contained the ground-truth answer → **Context Recall**
 
-Each score is a number from 0 to 1. Higher is better. A score below 0.7 is worth investigating.
+Each score is a number from **0 to 1**. **Higher is better.** A score **below 0.7** is worth investigating.
 
-Think of RAGAS as a repeatable version of your Exercise 2 scorecard — same questions, same criteria, but it can run on 500 answers in 90 seconds instead of you reading them one by one.
+Think of RAGAS as a **repeatable version of your Exercise 2 scorecard** — same questions, same criteria, but it can run on **500 answers in 90 seconds** instead of you reading them one by one.
 
 ### Live demo — show RAGAS running
 
@@ -748,7 +748,7 @@ Two breaks are pre-wired. You need to uncomment the TODO lines.
 | Break A: top_k=1 | ~0.88 | ~0.85 | ~0.60 ↓ |
 | Break B: no grounding | ~0.55 ↓ | ~0.85 | ~0.85 |
 
-**The lesson:** different breaks hurt different metrics. That is the whole point of having three metrics — each one points at a different part of the pipeline.
+**The lesson:** different breaks **hurt different metrics**. That is the whole point of having three metrics — each one **points at a different part of the pipeline**.
 
 **Stuck?** See `exercises/04-fix-and-rerun/solution.py`.
 
@@ -793,7 +793,7 @@ Did the score improve?
 Ship it or revert
 ```
 
-This is how you iterate on a RAG system without guessing.
+This is how you **iterate on a RAG system without guessing**.
 
 ### What to track in production
 
@@ -848,7 +848,7 @@ RAGAS does the same thing — but:
 - context_recall uses a decomposition approach that is more robust than a single yes/no call
 - The framework is maintained and improving
 
-For most teams, RAGAS is the right starting point. Write your own judge when you have a domain-specific scoring criterion RAGAS cannot express.
+For most teams, **RAGAS is the right starting point**. Write your own judge when you have a **domain-specific scoring criterion** RAGAS cannot express.
 
 ### Next steps
 
