@@ -29,17 +29,15 @@ Then you will deliberately break it and watch the scores fall — so you underst
 | Time | Block | Format |
 |------|-------|--------|
 | 0:00–0:15 | Setup & welcome | Setup |
-| 0:15–0:40 | What is RAG and why evaluate it? | Talk + demo |
-| 0:40–1:00 | Exercise 1 — Build the pipeline | Hands-on |
-| 1:00–1:15 | ☕ Break | — |
-| 1:15–1:35 | What makes a good RAG answer? | Talk |
-| 1:35–2:00 | Exercise 2 — Grade by hand | Hands-on |
-| 2:00–2:15 | RAGAS — automate the grading | Talk + demo |
-| 2:15–2:30 | Exercise 3 — RAGAS scores | Hands-on |
-| 2:30–2:40 | ☕ Short break | — |
-| 2:40–3:00 | Exercise 4 — Break it, fix it | Hands-on |
-| 3:00–3:10 | What to do when scores are bad | Talk |
-| 3:10–3:30 | End-to-end review + Q&A | Live demo |
+| 0:15–0:35 | What is RAG and why evaluate it? | Talk + demo |
+| 0:35–0:55 | Exercise 1 — Build the pipeline | Hands-on |
+| 0:55–1:10 | What makes a good RAG answer? | Talk |
+| 1:10–1:30 | Exercise 2 — Grade by hand | Hands-on |
+| 1:30–1:45 | ☕ Break | — |
+| 1:45–1:55 | RAGAS — automate the grading | Talk + demo |
+| 1:55–2:15 | Exercise 3 — RAGAS scores | Hands-on |
+| 2:15–2:35 | Exercise 4 — Break it, fix it | Hands-on |
+| 2:35–2:50 | When scores are bad + Q&A | Talk + Q&A |
 
 ---
 

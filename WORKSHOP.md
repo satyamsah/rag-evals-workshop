@@ -10,16 +10,14 @@
 |------|-------|
 | 0:00 | Setup & welcome |
 | 0:15 | Part 1 — RAG, the RAG pipeline, and why we evaluate it |
-| 0:40 | Exercise 1 — Build the pipeline |
-| 1:00 | ☕ Break |
-| 1:15 | Part 2 — What makes a good RAG answer? |
-| 1:35 | Exercise 2 — Grade by hand |
-| 2:00 | Part 3 — RAGAS |
-| 2:15 | Exercise 3 — RAGAS scores |
-| 2:30 | ☕ Short break |
-| 2:40 | Exercise 4 — Break it, fix it |
-| 3:00 | Part 4 — When scores are bad |
-| 3:10 | End-to-end review + Q&A |
+| 0:35 | Exercise 1 — Build the pipeline |
+| 0:55 | Part 2 — What makes a good RAG answer? |
+| 1:10 | Exercise 2 — Grade by hand |
+| 1:30 | ☕ Break |
+| 1:45 | Part 3 — RAGAS |
+| 1:55 | Exercise 3 — RAGAS scores |
+| 2:15 | Exercise 4 — Break it, fix it |
+| 2:35 | Part 4 — When scores are bad + Q&A |
 
 ---
 
@@ -517,7 +515,7 @@ First, let's build the pipeline.
 
 ---
 
-## 0:40 — Exercise 1: Build the pipeline
+## 0:35 — Exercise 1: Build the pipeline
 
 **Goal:** assemble the three pieces of a RAG pipeline from scratch.
 
@@ -561,11 +559,11 @@ Answer: Inception was directed by Christopher Nolan.
 
 ---
 
-## 1:00 — ☕ Break
+## 1:30 — ☕ Break
 
 ---
 
-## 1:15 — Part 2: Grading a RAG answer — what does "good" mean?
+## 0:55 — Part 2: Grading a RAG answer — what does "good" mean?
 
 In Part 1 we learned the three ways a RAG answer can fail.
 
@@ -618,7 +616,7 @@ Use this as your mental checklist in Exercise 2.
 
 ---
 
-## 1:35 — Exercise 2: Grade by hand
+## 1:10 — Exercise 2: Grade by hand
 
 **Goal:** score 5 answers yourself — build intuition before trusting RAGAS numbers.
 
@@ -646,7 +644,7 @@ Save your scores. In Exercise 3 you will compare them to RAGAS.
 
 ---
 
-## 2:00 — Part 3: RAGAS
+## 1:45 — Part 3: RAGAS
 
 ### What RAGAS does
 
@@ -680,7 +678,7 @@ Ask the room: do the low-scoring questions match what they expected from Exercis
 
 ---
 
-## 2:15 — Exercise 3: RAGAS scores
+## 1:55 — Exercise 3: RAGAS scores
 
 **Goal:** run RAGAS on all 10 questions and compare to your hand scores from Exercise 2.
 
@@ -720,7 +718,7 @@ This takes ~60–90 seconds. While it runs, predict: which 2–3 questions will 
 
 ---
 
-## 2:40 — Exercise 4: Break it, fix it
+## 2:15 — Exercise 4: Break it, fix it
 
 **Goal:** deliberately make the pipeline worse and watch the specific metrics drop.
 
@@ -756,7 +754,7 @@ Two breaks are pre-wired. You need to uncomment the TODO lines.
 
 ---
 
-## 3:00 — Part 4: When scores are bad
+## 2:35 — Part 4: When scores are bad + Q&A
 
 ### The diagnostic playbook
 
@@ -805,9 +803,7 @@ This is how you **iterate on a RAG system without guessing**.
 
 ---
 
-## 3:10 — End-to-end review + Q&A
-
-### Live walkthrough
+### Live walkthrough + Q&A
 
 Run the full pipeline on a new question not in the eval set:
 
@@ -815,15 +811,13 @@ Run the full pipeline on a new question not in the eval set:
 python pipeline/rag.py
 ```
 
-Watch the retrieval happen in real time.
-
-Point out:
+Watch the retrieval happen in real time. Point out:
 
 - Which chunks were retrieved
 - The similarity scores
 - What the answer looks like
 
-Then ask: what would you change to make this better?
+Then open to the room: what would you change to make this better?
 
 ---
 
