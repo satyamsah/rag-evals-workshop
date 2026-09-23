@@ -42,26 +42,26 @@ def build_index(documents):
     texts = [d["text"] for d in documents]
 
     # Step 1a — convert every document into a vector
-    # embeddings = encoder.encode(texts, show_progress_bar=False)
+    embeddings = encoder.encode(texts, show_progress_bar=False)
 
     # Step 1b — FAISS needs float32 numbers
-    # embeddings = np.array(embeddings, dtype="float32")
+    embeddings = np.array(embeddings, dtype="float32")
 
     # Step 1c — create the index (IndexFlatIP = cosine similarity search)
-    # index = faiss.IndexFlatIP(embeddings.shape[1])
+    index = faiss.IndexFlatIP(embeddings.shape[1])
 
     # Step 1d — normalise vectors and add them to the index
-    # faiss.normalize_L2(embeddings)
-    # index.add(embeddings)
+    faiss.normalize_L2(embeddings)
+    index.add(embeddings)
 
     # Step 1e — return everything we need later
-    # return index, texts
+    return index, texts
 
-    return None, texts  # remove this line once all steps above are uncommented
+    
 
 
-# index, texts = build_index(DOCUMENTS)
-# print(f"✓ Index built: {index.ntotal} vectors stored\n")
+index, texts = build_index(DOCUMENTS)
+print(f"✓ Index built: {index.ntotal} vectors stored\n")
 
 
 # ── Step 2: Retrieve relevant chunks ─────────────────────────────────────
@@ -75,27 +75,27 @@ def retrieve(question, index, texts, top_k=3):
     encoder = SentenceTransformer("all-MiniLM-L6-v2")
 
     # Step 2a — embed the question the same way we embedded documents
-    # q_emb = encoder.encode([question], show_progress_bar=False)
+    q_emb = encoder.encode([question], show_progress_bar=False)
 
     # Step 2b — normalise and search the index
-    # q_emb = np.array(q_emb, dtype="float32")
-    # faiss.normalize_L2(q_emb)
-    # scores, indices = index.search(q_emb, top_k)
+    q_emb = np.array(q_emb, dtype="float32")
+    faiss.normalize_L2(q_emb)
+    scores, indices = index.search(q_emb, top_k)
 
     # Step 2c — return the matching texts and their similarity scores
-    # chunks = [texts[i] for i in indices[0]]
-    # sims   = [float(scores[0][j]) for j in range(len(indices[0]))]
-    # return chunks, sims
+    chunks = [texts[i] for i in indices[0]]
+    sims   = [float(scores[0][j]) for j in range(len(indices[0]))]
+    return chunks, sims
 
-    return [], []  # remove this line once all steps above are uncommented
+  
 
 
-# question = "Who directed Inception?"
-# chunks, scores = retrieve(question, index, texts)
-# print(f"Q: {question}")
-# for i, (chunk, score) in enumerate(zip(chunks, scores), 1):
-#     print(f"  chunk {i} (score {score:.2f}): {chunk[:80]}...")
-# print()
+question = "Who directed Inception?"
+chunks, scores = retrieve(question, index, texts)
+print(f"Q: {question}")
+for i, (chunk, score) in enumerate(zip(chunks, scores), 1):
+    print(f"  chunk {i} (score {score:.2f}): {chunk[:80]}...")
+print()
 
 
 # ── Step 3: Generate an answer ────────────────────────────────────────────
@@ -116,24 +116,24 @@ def generate(question, chunks):
     llm = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
     # Step 3a — format the chunks into a numbered context block
-    # context = "\n\n".join(f"[{i+1}] {c}" for i, c in enumerate(chunks))
+    context = "\n\n".join(f"[{i+1}] {c}" for i, c in enumerate(chunks))
 
     # Step 3b — call Claude with the question and context
-    # r = llm.messages.create(
-    #     model="claude-haiku-4-5-20251001",
-    #     max_tokens=200,
-    #     system=SYSTEM_PROMPT,
-    #     messages=[{"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}],
-    # )
+    r = llm.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=200,
+        system=SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}],
+    )
 
     # Step 3c — return the answer text
-    # return r.content[0].text.strip()
+    return r.content[0].text.strip()
 
-    return "TODO — complete the steps above"  # remove this line once done
+   
 
 
-# answer = generate(question, chunks)
-# print(f"Answer: {answer}\n")
+answer = generate(question, chunks)
+print(f"Answer: {answer}\n")
 
 
 # ── When everything is uncommented you should see: ────────────────────────
