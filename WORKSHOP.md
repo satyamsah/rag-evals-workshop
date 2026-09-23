@@ -551,7 +551,7 @@ Q: Who directed Inception?
 Answer: Inception was directed by Christopher Nolan.
 ```
 
-**Stuck?** See `exercises/01-build-rag/solution.py`.
+**Stuck?** The solution is inside `exercise.py` — scroll down, the lines are there commented out.
 
 > **Presenter note:** Before releasing the room, run `encoder.encode(["hello world"])` live.
 > Show the array of numbers. Ask: "what makes two vectors close together?"
@@ -750,7 +750,7 @@ Two breaks are pre-wired. You need to uncomment the TODO lines.
 
 **The lesson:** different breaks **hurt different metrics**. That is the whole point of having three metrics — each one **points at a different part of the pipeline**.
 
-**Stuck?** See `exercises/04-fix-and-rerun/solution.py`.
+**Stuck?** The solution is inside `exercise.py` — scroll down, the lines are there commented out.
 
 ---
 
