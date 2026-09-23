@@ -498,6 +498,8 @@ A more relevant answer is:
 
 ## Why not just read the answers?
 
+You just learned to spot three problems in any RAG answer by eye — wrong retrieval, ignored context, off-topic generation. That works well for a handful of questions.
+
 If we have five questions, we can read the answers ourselves.
 
 But imagine we have:
