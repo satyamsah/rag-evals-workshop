@@ -12,7 +12,12 @@ errors = []
 # ── Python version ────────────────────────────────────────────────────────
 major, minor = sys.version_info[:2]
 if major < 3 or (major == 3 and minor < 10):
-    errors.append(f"Python 3.10+ required (you have {major}.{minor})")
+    errors.append(f"Python 3.10–3.12 required (you have {major}.{minor})")
+elif major == 3 and minor > 12:
+    errors.append(
+        f"Python {major}.{minor} is not supported — ragas requires Python 3.12 or earlier. "
+        "Use Docker (recommended) or install Python 3.12."
+    )
 else:
     print(f"✓ Python {major}.{minor}")
 

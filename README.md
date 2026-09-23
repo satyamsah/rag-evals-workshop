@@ -20,95 +20,11 @@ Context Recall:   0.90   ← the right document was retrieved
 
 Then you will deliberately break it and watch the scores fall — so you understand exactly what each metric catches.
 
-> **During the session — open [`WORKSHOP.md`](WORKSHOP.md) and follow it top to bottom.**
-
 ---
 
-## Schedule
+## During the session
 
-| Time | Block | Format |
-|------|-------|--------|
-| 0:00–0:15 | Setup & welcome | Setup |
-| 0:15–0:35 | What is RAG and why evaluate it? | Talk + demo |
-| 0:35–0:55 | Exercise 1 — Build the pipeline | Hands-on |
-| 0:55–1:10 | What makes a good RAG answer? | Talk |
-| 1:10–1:30 | Exercise 2 — Grade by hand | Hands-on |
-| 1:30–1:45 | ☕ Break | — |
-| 1:45–1:55 | RAGAS — automate the grading | Talk + demo |
-| 1:55–2:15 | Exercise 3 — RAGAS scores | Hands-on |
-| 2:15–2:35 | Exercise 4 — Break it, fix it | Hands-on |
-| 2:35–2:50 | When scores are bad + Q&A | Talk + Q&A |
-
----
-
-## Prerequisites
-
-| Requirement | Notes |
-|-------------|-------|
-| Python 3.10+ | `python3 --version` to check |
-| Anthropic API key | [console.anthropic.com](https://console.anthropic.com) — free tier works |
-| A terminal | Terminal on Mac, PowerShell or Command Prompt on Windows |
-
-No prior eval or RAG experience needed.
-
----
-
-## Setup (do this before the session)
-
-### 1. Get the code
-
-```bash
-git clone https://github.com/satyamsah/rag-evals-workshop
-cd rag-evals-workshop
-```
-
-### 2. Set up Python
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-> The first `pip install` takes 2–3 minutes — `sentence-transformers` is a large package.
-
-### 3. Add your API key
-
-```bash
-cp .env.example .env
-```
-
-Open `.env` and replace the placeholder with your real key:
-
-```
-ANTHROPIC_API_KEY=sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxx
-```
-
-**Where to get a key:**
-1. Go to https://console.anthropic.com
-2. Sign up (free) or log in
-3. Click **Get API Keys** → **Create Key**
-4. Copy and paste into `.env`
-
-> The `.env` file is in `.gitignore` — it will never be pushed to GitHub.
-
-### 4. Verify everything works
-
-```bash
-python check_setup.py
-```
-
-You should see:
-```
-✓ Python 3.x
-✓ python-dotenv installed
-✓ ANTHROPIC_API_KEY found
-✓ Anthropic API reachable
-✓ ragas installed
-✓ datasets installed
-✓ faiss-cpu installed
-✓ Ready for the workshop!
-```
+Open **[WORKSHOP.md](WORKSHOP.md)** and follow it top to bottom. Everything — setup, exercises, explanations — is in there.
 
 ---
 

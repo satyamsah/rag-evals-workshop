@@ -1,20 +1,20 @@
 """
 Exercise 2 — Grade by Hand
 ============================
-The pipeline runs for you. Your job is to score the answers.
+The pipeline runs automatically. Your job is to read each answer and score it.
 
-For each question you will see:
-  - The chunks that were retrieved
+For each of the 5 questions you will see:
+  - The chunks the RAG system retrieved
   - The answer the RAG system gave
   - The correct answer (ground truth)
 
-Score each answer on these three things:
-  Faithfulness     — is the answer supported by the retrieved chunks?  (0 = no, 1 = yes)
-  Answer Relevancy — does it actually answer the question?             (0 = no, 1 = yes)
-  Context Recall   — did retrieval surface the right document?         (0 = no, 1 = yes)
+Then the terminal will ask you to score three things (type 0 or 1):
+  Faithfulness     — is the answer supported by the retrieved chunks?
+  Answer Relevancy — does it actually answer the question?
+  Context Recall   — was the right information in the retrieved chunks?
 
-Then fill in your scores in the SCORECARD at the bottom.
-In Exercise 3 RAGAS will score the same answers automatically — compare the two.
+At the end you will see your scorecard.
+In Exercise 3, RAGAS will score the same answers automatically — compare the two.
 
 Run:  python exercises/02-grade-by-hand/exercise.py
 """
@@ -29,6 +29,7 @@ from dotenv import load_dotenv
 from rich.console import Console
 from rich.panel import Panel
 from rich.rule import Rule
+from rich.table import Table
 
 load_dotenv()
 
@@ -49,9 +50,21 @@ for item in SAMPLE:
     r["ground_truth"] = item["ground_truth"]
     results.append(r)
 
-console.print("[green]✓ Done — read through each answer below and fill in your scores\n[/green]")
+console.print("[green]✓ Done — read each answer carefully and score it\n[/green]")
 
-# ── Display each question ─────────────────────────────────────────────────
+
+def ask_score(label):
+    """Ask the user to enter 0 or 1. Keeps asking until valid."""
+    while True:
+        val = input(f"    {label} (0 = no / 1 = yes): ").strip()
+        if val in ("0", "1"):
+            return int(val)
+        console.print("    [red]Please enter 0 or 1[/red]")
+
+
+# ── Go through each question ──────────────────────────────────────────────
+
+scorecard = []
 
 for i, result in enumerate(results, 1):
     console.print(Rule(f"[bold]Question {i} of {len(results)}[/bold]"))
@@ -61,41 +74,41 @@ for i, result in enumerate(results, 1):
     for j, (chunk, score) in enumerate(zip(result["contexts"], result["scores"]), 1):
         console.print(Panel(chunk, title=f"[dim]Chunk {j}  (similarity={score:.2f})[/dim]", border_style="dim"))
 
-    console.print(Panel(result["answer"],       title="[green]RAG Answer[/green]",     border_style="green"))
+    console.print(Panel(result["answer"],       title="[green]RAG Answer[/green]",      border_style="green"))
     console.print(Panel(result["ground_truth"], title="[yellow]Correct Answer[/yellow]", border_style="yellow"))
+
+    console.print("\n[bold]Your scores:[/bold]")
+    console.print("  [dim]Faithfulness     — does the RAG answer match the retrieved chunks?[/dim]")
+    console.print("  [dim]Answer Relevancy — does it directly answer the question?[/dim]")
+    console.print("  [dim]Context Recall   — was the right information in the chunks?[/dim]\n")
+
+    faith   = ask_score("Faithfulness    ")
+    rel     = ask_score("Answer Relevancy")
+    recall  = ask_score("Context Recall  ")
+
+    scorecard.append({
+        "question": result["question"],
+        "faithfulness": faith,
+        "relevancy": rel,
+        "recall": recall,
+    })
     console.print()
 
-# ── Your scorecard ────────────────────────────────────────────────────────
+
+# ── Summary table ─────────────────────────────────────────────────────────
 
 console.print(Rule("[bold]Your Scorecard[/bold]"))
-console.print("""
-Fill in your scores below (0 = no, 1 = yes) then save the file.
-In Exercise 3 you will see how RAGAS scores compare.
 
-Ask yourself for each answer:
-  Faithfulness     — does the answer match what was in the retrieved chunks?
-  Answer Relevancy — does it directly answer what was asked?
-  Context Recall   — was the right document in the retrieved chunks?
-""")
+table = Table(show_header=True, header_style="bold")
+table.add_column("Question", style="cyan", max_width=45)
+table.add_column("Faithfulness", justify="center")
+table.add_column("Answer Relevancy", justify="center")
+table.add_column("Context Recall", justify="center")
 
-# ── Uncomment this block and fill in your scores ──────────────────────────
+for row in scorecard:
+    def fmt(v):
+        return "[green]1[/green]" if v == 1 else "[red]0[/red]"
+    table.add_row(row["question"][:45], fmt(row["faithfulness"]), fmt(row["relevancy"]), fmt(row["recall"]))
 
-# SCORECARD = [
-#     {"q": "Who directed Inception?",
-#      "faithfulness": ?,  "relevancy": ?,  "recall": ?},
-#
-#     {"q": "Which actor won an award for playing the Joker?",
-#      "faithfulness": ?,  "relevancy": ?,  "recall": ?},
-#
-#     {"q": "What was the first non-English film to win Best Picture?",
-#      "faithfulness": ?,  "relevancy": ?,  "recall": ?},
-#
-#     {"q": "Who plays Evelyn in Everything Everywhere All at Once?",
-#      "faithfulness": ?,  "relevancy": ?,  "recall": ?},
-#
-#     {"q": "How many Oscars did Oppenheimer win?",
-#      "faithfulness": ?,  "relevancy": ?,  "recall": ?},
-# ]
-#
-# for row in SCORECARD:
-#     print(f"  {row['q'][:50]:<50}  faith={row['faithfulness']}  rel={row['relevancy']}  recall={row['recall']}")
+console.print(table)
+console.print("\n[dim]Save these scores — in Exercise 3 you will compare them to RAGAS.[/dim]\n")

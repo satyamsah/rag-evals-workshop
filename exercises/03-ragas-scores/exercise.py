@@ -8,10 +8,8 @@ It uses an LLM internally (Claude haiku) as a judge to score:
   - Answer Relevancy — does the answer address the question?
   - Context Recall   — did retrieval find the document containing the answer?
 
-Why do we need LangChain here?
-  RAGAS was built to work with LangChain's model interface.
-  We point it at Claude haiku — same model as before, just wrapped differently.
-  Your pipeline code (anthropic SDK) stays unchanged.
+Your job: uncomment the block below and run it.
+Compare the scores to what you wrote down in Exercise 2.
 
 Run:  python exercises/03-ragas-scores/exercise.py
 """
@@ -34,7 +32,7 @@ from pipeline.rag import RAGPipeline
 
 console = Console()
 
-# ── Step 1: Run the pipeline on all 10 eval questions ─────────────────────
+# ── Step 1: Run the pipeline (already done for you) ───────────────────────
 
 console.print("[dim]Building index and running pipeline on 10 questions...[/dim]")
 
@@ -50,41 +48,40 @@ for item in EVAL_QUESTIONS:
 console.print(f"[green]✓ {len(results)} answers generated[/green]\n")
 
 
-# ── Step 2: Format for RAGAS ──────────────────────────────────────────────
+# ── Step 2: Uncomment this entire block to run RAGAS ─────────────────────
 #
-# RAGAS expects four columns:
-#   question      — what was asked
-#   answer        — what the RAG system said
-#   contexts      — the list of retrieved chunks
-#   ground_truth  — the correct answer (used to measure context recall)
+# RAGAS needs four things for each question:
+#   user_input          — what was asked
+#   response            — what the RAG system said
+#   retrieved_contexts  — the retrieved chunks (as a list)
+#   reference           — the correct answer
 #
-# Uncomment each line below one at a time and re-run.
+# It uses Claude haiku as an internal judge to score each answer.
+# This takes about 60–90 seconds to run.
 #
-
-# Step 2a — import the RAGAS libraries
-# from datasets import Dataset
-# from ragas import evaluate
+# TODO: UNCOMMENT THE ENTIRE BLOCK BELOW AND RE-RUN
+#
+# from ragas import evaluate, EvaluationDataset, SingleTurnSample
 # from ragas.metrics import faithfulness, answer_relevancy, context_recall
+# from ragas.llms import LangchainLLMWrapper
+# from ragas.embeddings import LangchainEmbeddingsWrapper
 # from langchain_anthropic import ChatAnthropic
 # from langchain_community.embeddings import HuggingFaceEmbeddings
-
-# Step 2b — build the dataset RAGAS expects
-# dataset = Dataset.from_list([
-#     {
-#         "question":     r["question"],
-#         "answer":       r["answer"],
-#         "contexts":     r["contexts"],
-#         "ground_truth": r["ground_truth"],
-#     }
+#
+# dataset = EvaluationDataset(samples=[
+#     SingleTurnSample(
+#         user_input=r["question"],
+#         response=r["answer"],
+#         retrieved_contexts=r["contexts"],
+#         reference=r["ground_truth"],
+#     )
 #     for r in results
 # ])
-
-# Step 2c — set up the LLM judge and embedding model
-# judge_llm   = ChatAnthropic(model="claude-haiku-4-5-20251001", api_key=os.getenv("ANTHROPIC_API_KEY"))
-# embed_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-
-# Step 2d — run the evaluation (this takes ~60–90 seconds)
-# console.print("[dim]Running RAGAS evaluation...[/dim]\n")
+#
+# judge_llm   = LangchainLLMWrapper(ChatAnthropic(model="claude-haiku-4-5-20251001", api_key=os.getenv("ANTHROPIC_API_KEY")))
+# embed_model = LangchainEmbeddingsWrapper(HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2"))
+#
+# console.print("[dim]Running RAGAS evaluation — this takes ~60–90 seconds...[/dim]\n")
 # scores = evaluate(
 #     dataset,
 #     metrics=[faithfulness, answer_relevancy, context_recall],
@@ -92,13 +89,7 @@ console.print(f"[green]✓ {len(results)} answers generated[/green]\n")
 #     embeddings=embed_model,
 #     raise_exceptions=False,
 # )
-
-
-# ── Step 3: Display results ───────────────────────────────────────────────
 #
-# Uncomment once Step 2 is complete.
-#
-
 # df = scores.to_pandas()
 #
 # console.print(Rule("[bold]RAGAS Scores — per question[/bold]"))
@@ -118,7 +109,7 @@ console.print(f"[green]✓ {len(results)} answers generated[/green]\n")
 #
 # for _, row in df.iterrows():
 #     table.add_row(
-#         row["question"][:44],
+#         row["user_input"][:44],
 #         _fmt(row.get("faithfulness")),
 #         _fmt(row.get("answer_relevancy")),
 #         _fmt(row.get("context_recall")),
@@ -131,6 +122,6 @@ console.print(f"[green]✓ {len(results)} answers generated[/green]\n")
 #     mean = df[metric].dropna().mean() if metric in df else None
 #     console.print(f"  {label:<20} {_fmt(mean)}")
 # console.print()
-# console.print("[dim]Scores below 0.7 are worth investigating. Move to Exercise 4 to break and fix the pipeline.[/dim]")
+# console.print("[dim]Compare these scores to what you wrote in Exercise 2. Where do they disagree?[/dim]")
 
-console.print("[dim]Uncomment the steps above one at a time and re-run to see the scores.[/dim]")
+console.print("[dim]Uncomment the block above (Step 2) and re-run to see the RAGAS scores.[/dim]")

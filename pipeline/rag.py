@@ -32,7 +32,14 @@ Run the full pipeline end-to-end:
 
 import os
 import warnings
+import logging
 warnings.filterwarnings("ignore")
+logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
+logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+logging.getLogger("transformers").setLevel(logging.ERROR)
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
+os.environ.setdefault("HF_HUB_VERBOSITY", "error")
 from dotenv import load_dotenv
 
 import numpy as np

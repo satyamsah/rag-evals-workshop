@@ -28,9 +28,10 @@ from dotenv import load_dotenv
 from rich.console import Console
 from rich.table import Table
 from rich.rule import Rule
-from datasets import Dataset
-from ragas import evaluate
+from ragas import evaluate, EvaluationDataset, SingleTurnSample
 from ragas.metrics import faithfulness, answer_relevancy, context_recall
+from ragas.llms import LangchainLLMWrapper
+from ragas.embeddings import LangchainEmbeddingsWrapper
 from langchain_anthropic import ChatAnthropic
 from langchain_community.embeddings import HuggingFaceEmbeddings
 import anthropic
@@ -42,19 +43,23 @@ from pipeline.rag import RAGPipeline
 
 console = Console()
 
-judge_llm   = ChatAnthropic(model="claude-haiku-4-5-20251001", api_key=os.getenv("ANTHROPIC_API_KEY"))
-embed_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+judge_llm   = LangchainLLMWrapper(ChatAnthropic(model="claude-haiku-4-5-20251001", api_key=os.getenv("ANTHROPIC_API_KEY")))
+embed_model = LangchainEmbeddingsWrapper(HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2"))
 
 
 # ── Helper: score a list of results with RAGAS ────────────────────────────
 
 def score(results):
-    ds = Dataset.from_list([
-        {"question": r["question"], "answer": r["answer"],
-         "contexts": r["contexts"], "ground_truth": r["ground_truth"]}
+    dataset = EvaluationDataset(samples=[
+        SingleTurnSample(
+            user_input=r["question"],
+            response=r["answer"],
+            retrieved_contexts=r["contexts"],
+            reference=r["ground_truth"],
+        )
         for r in results
     ])
-    out = evaluate(ds, metrics=[faithfulness, answer_relevancy, context_recall],
+    out = evaluate(dataset, metrics=[faithfulness, answer_relevancy, context_recall],
                    llm=judge_llm, embeddings=embed_model, raise_exceptions=False)
     df = out.to_pandas()
     return {k: round(df[k].dropna().mean(), 3) for k in ["faithfulness", "answer_relevancy", "context_recall"]}
@@ -89,12 +94,12 @@ def _fmt(v):
     return f"[{c}]{f:.2f}[/{c}]"
 
 
-# ── Baseline ──────────────────────────────────────────────────────────────
+# ── Step 1: Baseline ──────────────────────────────────────────────────────
 
-console.print(Rule("[bold]Baseline — top_k=3, grounding prompt on[/bold]"))
+console.print(Rule("[bold]Step 1 — Baseline (top_k=3, grounding prompt on)[/bold]"))
 console.print("[dim]Running...[/dim]")
 
-# Step 1 — uncomment to run the baseline
+# TODO: UNCOMMENT STEP 1 AND RE-RUN
 # baseline_results = run_pipeline(top_k=3)
 # baseline_scores  = score(baseline_results)
 # console.print(f"Faithfulness:     {_fmt(baseline_scores['faithfulness'])}")
@@ -102,12 +107,12 @@ console.print("[dim]Running...[/dim]")
 # console.print(f"Context Recall:   {_fmt(baseline_scores['context_recall'])}\n")
 
 
-# ── Break A: top_k=1 ──────────────────────────────────────────────────────
+# ── Step 2: Break A — top_k=1 ─────────────────────────────────────────────
 
-console.print(Rule("[bold]Break A — top_k=1 (retrieval gets worse)[/bold]"))
+console.print(Rule("[bold]Step 2 — Break A: top_k=1 (retrieval gets worse)[/bold]"))
 console.print("[dim]Only 1 chunk retrieved instead of 3. Which metric drops?[/dim]\n")
 
-# Step 2 — uncomment to run Break A
+# TODO: UNCOMMENT STEP 2 AND RE-RUN
 # broken_a_results = run_pipeline(top_k=1)
 # broken_a_scores  = score(broken_a_results)
 # console.print(f"Faithfulness:     {_fmt(broken_a_scores['faithfulness'])}")
@@ -115,16 +120,16 @@ console.print("[dim]Only 1 chunk retrieved instead of 3. Which metric drops?[/di
 # console.print(f"Context Recall:   {_fmt(broken_a_scores['context_recall'])}\n")
 
 
-# ── Break B: no grounding instruction ────────────────────────────────────
+# ── Step 3: Break B — no grounding instruction ────────────────────────────
 
 BROKEN_PROMPT = """You are a helpful assistant that answers questions about movies.
 Answer the question as best you can."""
 # ↑ grounding instruction removed — LLM can now use its training memory
 
-console.print(Rule("[bold]Break B — no grounding instruction (LLM goes off-script)[/bold]"))
+console.print(Rule("[bold]Step 3 — Break B: no grounding instruction (LLM goes off-script)[/bold]"))
 console.print("[dim]System prompt no longer says 'answer ONLY from context'. Which metric drops?[/dim]\n")
 
-# Step 3 — uncomment to run Break B
+# TODO: UNCOMMENT STEP 3 AND RE-RUN
 # broken_b_results = run_pipeline(system_prompt=BROKEN_PROMPT)
 # broken_b_scores  = score(broken_b_results)
 # console.print(f"Faithfulness:     {_fmt(broken_b_scores['faithfulness'])}")
@@ -132,9 +137,9 @@ console.print("[dim]System prompt no longer says 'answer ONLY from context'. Whi
 # console.print(f"Context Recall:   {_fmt(broken_b_scores['context_recall'])}\n")
 
 
-# ── Summary table ─────────────────────────────────────────────────────────
+# ── Step 4: Summary table ─────────────────────────────────────────────────
 
-# Step 4 — uncomment to see the comparison table
+# TODO: UNCOMMENT STEP 4 AFTER RUNNING ALL THREE ABOVE
 # console.print(Rule("[bold]Summary[/bold]"))
 # table = Table(show_header=True, header_style="bold")
 # table.add_column("Pipeline version")
@@ -146,6 +151,6 @@ console.print("[dim]System prompt no longer says 'answer ONLY from context'. Whi
 # table.add_row("Break B: no grounding",  _fmt(broken_b_scores["faithfulness"]), _fmt(broken_b_scores["answer_relevancy"]), _fmt(broken_b_scores["context_recall"]))
 # console.print(table)
 # console.print()
-# console.print("[dim]Break A hurts Context Recall. Break B hurts Faithfulness. Different problems → different metrics.[/dim]")
+# console.print("[dim]Break A hurts Context Recall and Answer Relevancy. Break B barely moves — public data means the LLM already knows the answers.[/dim]")
 
 console.print("[dim]Uncomment the steps above one at a time and re-run.[/dim]")

@@ -182,22 +182,22 @@ EVAL_QUESTIONS = [
         "reference_docs": ["inc-1"],
     },
     {
-        "question": "Which actor won an Academy Award for playing the Joker?",
+        "question": "Which performer received a posthumous honour for a villain role?",
         "ground_truth": "Heath Ledger won a posthumous Academy Award for Best Supporting Actor for playing the Joker in The Dark Knight.",
         "reference_docs": ["tdk-2"],
     },
     {
-        "question": "What was the first non-English film to win Best Picture?",
+        "question": "What South Korean movie made history at the Oscars?",
         "ground_truth": "Parasite was the first non-English language film to win the Academy Award for Best Picture.",
         "reference_docs": ["par-2"],
     },
     {
-        "question": "Who plays Evelyn in Everything Everywhere All at Once?",
+        "question": "Which film features a laundromat owner travelling across parallel universes?",
         "ground_truth": "Michelle Yeoh plays Evelyn in Everything Everywhere All at Once.",
         "reference_docs": ["ee-1"],
     },
     {
-        "question": "How many Oscars did Oppenheimer win?",
+        "question": "Which Nolan film about a physicist won the most awards in 2024?",
         "ground_truth": "Oppenheimer won seven Academy Awards in 2024.",
         "reference_docs": ["opp-3"],
     },

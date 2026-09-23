@@ -23,7 +23,74 @@
 
 ## 0:00 — Setup & welcome
 
-Ask everyone to run:
+> **Presenter note:** give everyone 10 minutes for this. If someone is still stuck after that, pair them with a neighbour and move on.
+
+### Step 1 — Get the code
+
+```bash
+git clone https://github.com/satyamsah/rag-evals-workshop
+cd rag-evals-workshop
+```
+
+### Step 2 — Add your API key
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` in any text editor and replace the placeholder with your real key:
+
+```
+ANTHROPIC_API_KEY=sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Get a key at https://console.anthropic.com → **Get API Keys** → **Create Key** (free tier works).
+
+### Step 3 — Set up Python 3.12
+
+We use **pyenv** to pin Python 3.12 for this project without touching your system Python.
+
+**Install pyenv** (if you don't have it):
+
+```bash
+# Mac
+brew install pyenv
+```
+
+After installing, add pyenv to your shell. Add these lines to your `~/.zshrc` (or `~/.bashrc`):
+
+```bash
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+```
+
+Then restart your terminal (or run `source ~/.zshrc`).
+
+**Install Python 3.12 and create the venv:**
+
+```bash
+pyenv install 3.12        # downloads Python 3.12 (skip if already installed)
+pyenv local 3.12          # pins 3.12 for this directory — writes .python-version
+```
+
+Verify pyenv is using 3.12 before creating the venv:
+
+```bash
+python3 --version         # must say Python 3.12.x — if not, restart your terminal first
+```
+
+Then create the venv and install dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+> The `.python-version` file is already in the repo — `pyenv local 3.12` is only needed once. After that, any terminal you open in this folder automatically uses 3.12.
+
+### Step 4 — Verify
 
 ```bash
 python check_setup.py
@@ -31,8 +98,8 @@ python check_setup.py
 
 Expected output:
 
-```text
-✓ Python 3.x
+```
+✓ Python 3.12
 ✓ python-dotenv installed
 ✓ ANTHROPIC_API_KEY found
 ✓ Anthropic API reachable
@@ -42,8 +109,7 @@ Expected output:
 ✓ Ready for the workshop!
 ```
 
-If anyone is stuck on setup, pair them with a neighbour — do not let a setup
-issue derail the room. Move on after 10 minutes regardless.
+If you see any `✗` lines, fix them before continuing. Most common issue: forgot to add the API key to `.env`.
 
 ---
 
@@ -69,14 +135,21 @@ information at question time.
 
 The basic idea is simple:
 
-```text
-Question
-   ↓
-Find relevant information
-   ↓
-Give that information to the LLM
-   ↓
-Generate an answer
+```
+┌──────────────────────────────────────────┐
+│                                          │
+│   Question                               │
+│      │                                   │
+│      ▼                                   │
+│   Find relevant information              │
+│      │                                   │
+│      ▼                                   │
+│   Give that information to the LLM       │
+│      │                                   │
+│      ▼                                   │
+│   Generate an answer                     │
+│                                          │
+└──────────────────────────────────────────┘
 ```
 
 Instead of asking the LLM to answer entirely from what it learned during
@@ -102,14 +175,17 @@ The first stage is preparing the documents.
 
 The basic flow is:
 
-```text
-Documents
-   ↓
-Chunking
-   ↓
-Embeddings
-   ↓
-Index
+```
+  Documents
+      │
+      ▼
+  Chunking        ← split large docs into smaller pieces
+      │
+      ▼
+  Embeddings      ← convert each chunk into a vector
+      │
+      ▼
+  Index           ← store vectors for fast search
 ```
 
 Let's look at each step.
@@ -143,18 +219,16 @@ large document** to the LLM.
 
 We want to find the **smaller section** that is actually **relevant to the question**.
 
-```text
-Large document
-       ↓
- ┌─────────────┐
- │ Chunk 1     │
- ├─────────────┤
- │ Chunk 2     │
- ├─────────────┤
- │ Chunk 3     │
- ├─────────────┤
- │ Chunk 4     │
- └─────────────┘
+```
+  ┌─────────────────────────┐
+  │  One large document     │
+  └────────────┬────────────┘
+               │  split
+       ┌───────┼───────┐
+       ▼       ▼       ▼
+  ┌────────┐ ┌────────┐ ┌────────┐
+  │Chunk 1 │ │Chunk 2 │ │Chunk 3 │
+  └────────┘ └────────┘ └────────┘
 ```
 
 Later, when somebody asks a question, we can retrieve only the chunks that
@@ -170,10 +244,11 @@ An embedding converts text into a **numerical representation** — a **vector**.
 
 For example:
 
-```text
-"Christopher Nolan directed Inception"
-                ↓
-       [0.12, -0.43, 0.87, ...]
+```
+  "Christopher Nolan directed Inception"
+                  │
+                  ▼  embedding model
+        [ 0.12, -0.43, 0.87, 0.05, ... ]
 ```
 
 We don't need to understand every number in the vector.
@@ -210,14 +285,17 @@ In this workshop, we use **FAISS — Facebook AI Similarity Search**.
 
 Conceptually:
 
-```text
-Document chunks
-      ↓
-Embeddings
-      ↓
-Vector index
-      ↓
-Efficient similarity search
+```
+  Document chunks
+        │
+        ▼  embed each chunk
+  Vectors (float32)
+        │
+        ▼  store in FAISS
+  Vector index
+        │
+        ▼  at query time
+  Similarity search  ← finds nearest vectors instantly
 ```
 
 When a user asks a question, we also create an **embedding for the question**
@@ -233,18 +311,22 @@ Now that our knowledge base is prepared, a user can ask a question.
 
 The answering process looks like this:
 
-```text
-Question
-   ↓
-Create question embedding
-   ↓
-Retrieve relevant chunks
-   ↓
-Retrieved context
-   ↓
-LLM
-   ↓
-Answer
+```
+  Question
+      │
+      ▼  embed the question
+  Question vector
+      │
+      ▼  search FAISS index
+  Top-3 similar chunks
+      │
+      ▼  pass to LLM with question
+  ┌────────────────────┐
+  │        LLM         │
+  └────────────────────┘
+      │
+      ▼
+  Answer
 ```
 
 So the core RAG flow is:
@@ -299,12 +381,15 @@ Evaluation helps us understand:
 
 Think of it as a diagnostic layer around our RAG system:
 
-```text
-                    RAG SYSTEM
-
-Question → Retrieval → Context → LLM → Answer
-              │                    │
-              └──── Evaluation ───┘
+```
+  Question ──► Retrieval ──► Context ──► LLM ──► Answer
+                   │                      │
+                   │      Evaluation      │
+                   └──────────┬───────────┘
+                              │
+                    Did retrieval work?
+                    Did the LLM stay grounded?
+                    Did the answer address the question?
 ```
 
 The RAG system creates the answer.
@@ -334,24 +419,32 @@ So think of the metric as a **signal**.
 
 The actual root cause may be somewhere earlier in the RAG pipeline:
 
-```text
-Documents
-   ↓
-Chunking
-   ↓
-Embeddings
-   ↓
-Index
-   ↓
-Retrieval
-   ↓
-Context
-   ↓
-LLM
-   ↓
-Answer
-   ↓
-Evaluation
+```
+  Documents    ← your knowledge base
+      │
+      ▼
+  Chunking     ← split into smaller pieces
+      │
+      ▼
+  Embeddings   ← convert to vectors
+      │
+      ▼
+  Index        ← store for fast search
+      │
+      ▼
+  Retrieval    ← find relevant chunks
+      │
+      ▼
+  Context      ← pass chunks to LLM
+      │
+      ▼
+  LLM          ← generate answer
+      │
+      ▼
+  Answer
+      │
+      ▼
+  Evaluation   ← did it work?
 ```
 
 By the end of the workshop, you will know exactly which part of the pipeline to look at when a score drops.
@@ -519,14 +612,12 @@ First, let's build the pipeline.
 
 **Goal:** assemble the three pieces of a RAG pipeline from scratch.
 
-```text
-What you are building:
-
-  Documents ──► build_index() ──► FAISS index
-                                       │
-  Question  ──► retrieve()    ──► top-3 chunks
-                                       │
-  Question + chunks ──► generate() ──► Answer
+```
+  Documents  ──────► build_index()  ──────► FAISS index
+                                                 │
+  Question   ──────► retrieve()     ──────► top-3 chunks
+                                                 │
+  Question + chunks ──► generate()  ──────► Answer
 ```
 
 ```bash
@@ -553,9 +644,22 @@ Answer: Inception was directed by Christopher Nolan.
 
 **Stuck?** The solution is inside `exercise.py` — scroll down, the lines are there commented out.
 
-> **Presenter note:** Before releasing the room, run `encoder.encode(["hello world"])` live.
-> Show the array of numbers. Ask: "what makes two vectors close together?"
-> Answer: similar meaning. That is the whole foundation of retrieval.
+> **Once Exercise 1 is complete:** the full working version of what you just built lives in `pipeline/rag.py`.
+> Exercises 2, 3, and 4 import `RAGPipeline` from it automatically — you don't need to touch or rebuild it.
+
+> **Quick demo — everyone run this:**
+> ```python
+> python3 -c "
+> from sentence_transformers import SentenceTransformer
+> enc = SentenceTransformer('all-MiniLM-L6-v2')
+> print(enc.encode(['hello world'])[0][:8])
+> "
+> ```
+> You will see 8 numbers. Those numbers **represent the meaning** of "hello world".
+> Now try changing `'hello world'` to `'hi there'` and re-run — the numbers are different but close.
+> Try `'Christopher Nolan'` — very different numbers.
+>
+> **That gap between numbers is how retrieval works.** Close numbers = similar meaning.
 
 ---
 
@@ -576,32 +680,30 @@ cannot trust a score you do not understand.
 
 ### The three questions to ask for any answer
 
-```text
-Step 1 — Look at the retrieved chunks
-         Did they contain the information needed to answer the question?
-                        │
-              YES       │        NO
-               │        │         │
-               ▼        │         ▼
-Step 2 —  Look at      │    → Context Recall problem
-          the answer   │      The right document was never retrieved
-               │        │
-               ▼        │
-         Does the answer match the retrieved chunks?
-                        │
-              YES       │        NO
-               │        │         │
-               ▼        │         ▼
-Step 3 —  Does it      │    → Faithfulness problem
-          directly     │      The LLM ignored the context
-          answer the   │
-          question?    │
-               │        │
-              NO        │
-               │        │
-               ▼        │
-         → Answer Relevancy problem
-           The answer is vague or off-topic
+```
+  Did the retrieved chunks contain the answer?
+           │
+     ┌─────┴──────┐
+    YES            NO
+     │              │
+     ▼              ▼
+  Does the answer   Context Recall problem
+  match the chunks? The right chunk was never retrieved
+     │
+  ┌──┴───┐
+ YES      NO
+  │        │
+  ▼        ▼
+Does it    Faithfulness problem
+directly   The LLM ignored the retrieved context
+answer the
+question?
+  │
+  NO
+  │
+  ▼
+Answer Relevancy problem
+The answer is vague or off-topic
 ```
 
 Use this as your mental checklist in Exercise 2.
@@ -630,13 +732,13 @@ For each of the 5 questions you will see:
 - The RAG answer
 - The ground truth
 
-Score each on a 0–3 scale:
+The terminal will then ask you to score three things (type `0` or `1`):
 
-- **Faithfulness:** is the answer supported by the chunks?
-- **Answer Relevancy:** does it answer the question?
-- **Context Recall:** did retrieval surface the right document?
+- **Faithfulness:** is the answer supported by the retrieved chunks?
+- **Answer Relevancy:** does it directly answer the question?
+- **Context Recall:** was the right information in the retrieved chunks?
 
-Fill in the SCORECARD at the bottom of the exercise file.
+At the end you will see a summary table of your scores.
 
 > **Key question:** when the answer was wrong — was the retrieved chunk wrong, or did the LLM go off-script? That distinction tells you where to fix.
 
@@ -682,22 +784,22 @@ Ask the room: do the low-scoring questions match what they expected from Exercis
 
 **Goal:** run RAGAS on all 10 questions and compare to your hand scores from Exercise 2.
 
-```text
-What RAGAS is doing internally:
-
+```
   Question + Answer + Retrieved chunks + Ground truth
-                        │
-                        ▼
-              ┌─────────────────────┐
-              │   Claude haiku      │  ← RAGAS uses an LLM as the judge
-              │   (as judge)        │
-              └─────────────────────┘
-                        │
-          ┌─────────────┼─────────────┐
-          ▼             ▼             ▼
-    Faithfulness  Answer         Context
-    0.0 – 1.0     Relevancy      Recall
-                  0.0 – 1.0      0.0 – 1.0
+                          │
+                          ▼
+              ┌───────────────────────┐
+              │      Claude haiku     │  ← RAGAS uses an LLM as judge
+              │      (as judge)       │
+              └───────────┬───────────┘
+                          │
+           ┌──────────────┼──────────────┐
+           ▼              ▼              ▼
+  ┌──────────────┐ ┌────────────┐ ┌────────────┐
+  │ Faithfulness │ │  Answer    │ │  Context   │
+  │  0.0 – 1.0  │ │ Relevancy  │ │  Recall    │
+  └──────────────┘ │ 0.0 – 1.0 │ │ 0.0 – 1.0 │
+                   └────────────┘ └────────────┘
 ```
 
 ```bash
@@ -722,6 +824,29 @@ This takes ~60–90 seconds. While it runs, predict: which 2–3 questions will 
 
 **Goal:** deliberately make the pipeline worse and watch the specific metrics drop.
 
+### Before you run — read these files first
+
+Don't just uncomment and run. Take 3 minutes to open these files and understand what you're actually changing:
+
+**`pipeline/corpus.py`**
+- `DOCUMENTS` — the 25 movie review chunks that get ingested into the vector index. This is your knowledge base.
+- `EVAL_QUESTIONS` — 10 questions with `ground_truth` answers. This is your golden dataset.
+- Ask yourself: who wrote the ground truth? (We did, by hand.) In a real project, this is your domain expert's job.
+
+**`pipeline/rag.py`**
+- `build_index()` — embeds all documents and stores them in FAISS
+- `retrieve()` — embeds the question and finds the top_k nearest chunks
+- `ask()` — calls Claude haiku with the retrieved chunks as context
+- Find the system prompt inside `ask()`. Notice the line: `"Answer using ONLY the context passages provided"` — that's the grounding instruction. Break B removes it.
+
+**`exercises/04-fix-and-rerun/exercise.py`**
+- `run_pipeline(top_k=3)` — runs the full pipeline with 3 chunks per question
+- `score(results)` — sends results to RAGAS and returns the three metric scores
+- Break A changes `top_k=3` to `top_k=1`
+- Break B passes a different system prompt that removes the grounding instruction
+
+Once you understand what each piece does, then uncomment and run.
+
 ```bash
 python exercises/04-fix-and-rerun/exercise.py
 ```
@@ -744,11 +869,17 @@ Two breaks are pre-wired. You need to uncomment the TODO lines.
 
 | Pipeline | Faithfulness | Answer Relevancy | Context Recall |
 |----------|-------------|-----------------|----------------|
-| Baseline (top_k=3) | ~0.90 | ~0.88 | ~0.85 |
-| Break A: top_k=1 | ~0.88 | ~0.85 | ~0.60 ↓ |
-| Break B: no grounding | ~0.55 ↓ | ~0.85 | ~0.85 |
+| Baseline (top_k=3) | ~0.93 | ~0.69 | ~0.90 |
+| Break A: top_k=1 | ~0.91 | ~0.57 ↓ | ~0.70 ↓ |
+| Break B: no grounding | ~0.92 | ~0.78 | ~0.90 |
 
-**The lesson:** different breaks **hurt different metrics**. That is the whole point of having three metrics — each one **points at a different part of the pipeline**.
+**Break A** does what you expect — Context Recall drops because fewer chunks means the right document often isn't retrieved.
+
+**Break B** is the surprise. Removing the grounding instruction does NOT hurt Faithfulness here — it may even go slightly up. Why?
+
+Because our corpus is public movie facts that Claude haiku already knows from training. When you remove the grounding instruction, the LLM answers from its own memory instead of the context — but the answers are still correct and still match the retrieved chunks, so the judge can't tell the difference.
+
+**This is the real lesson of Break B:** RAGAS metrics can be misleading on well-known public data. On internal company documents — ones the LLM has never seen — removing the grounding instruction would cause real hallucination and Faithfulness would drop sharply. The eval is only as meaningful as the gap between what the LLM knows and what's in your corpus.
 
 **Stuck?** The solution is inside `exercise.py` — scroll down, the lines are there commented out.
 
