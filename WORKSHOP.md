@@ -462,8 +462,6 @@ The right chunk was retrieved and the answer is technically grounded — but it 
 | Answer contradicts the chunk | Faithfulness ↓ | System prompt grounding instruction |
 | Answer is vague or off-topic | Answer Relevancy ↓ | Generation prompt |
 
-> **Presenter note:** walk through 2–3 examples from the corpus. Ask students: "which failure is this?" before revealing. This 5-minute interactive moment is what makes Exercise 2 land.
-
 ---
 
 ## 1:10 — Exercise 2: Grade by hand
