@@ -577,6 +577,9 @@ You will see `Evaluating: 30/30` — that is 10 questions × 3 metrics = 30 Clau
 
 So Faithfulness and Answer Relevancy can run on any RAG system with no golden dataset at all. Context Recall is the only one that needs the ground truth answers we wrote in `corpus.py`.
 
+> **How Answer Relevancy works under the hood:**
+> Take the RAG answer → use haiku to generate N questions that the answer could be responding to → embed those generated questions and the original question → score = average cosine similarity between them. A good answer should "reverse-engineer" back to the original question. If it doesn't, it was off-topic or too vague.
+
 **Concrete example — Q1: "Who directed Inception?"**
 
 RAG answer: *"Christopher Nolan directed Inception."*
