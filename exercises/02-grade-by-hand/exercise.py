@@ -9,9 +9,12 @@ For each of the 5 questions you will see:
   - The correct answer (ground truth)
 
 Then the terminal will ask you to score three things (type 0 or 1):
-  Faithfulness     — is the answer supported by the retrieved chunks?
-  Answer Relevancy — does it actually answer the question?
-  Context Recall   — was the right information in the retrieved chunks?
+  Faithfulness     — is every claim in the answer supported by the retrieved chunks?
+                     RAGAS asks this per sentence: "is this claim backed by the context?"
+  Answer Relevancy — does the answer directly address the question?
+                     RAGAS generates fake questions from the answer and checks similarity.
+  Context Recall   — did the chunks contain what was needed to answer correctly?
+                     RAGAS checks: could the correct answer be produced from these chunks?
 
 At the end you will see your scorecard.
 In Exercise 3, RAGAS will score the same answers automatically — compare the two.
@@ -78,9 +81,12 @@ for i, result in enumerate(results, 1):
     console.print(Panel(result["ground_truth"], title="[yellow]Correct Answer[/yellow]", border_style="yellow"))
 
     console.print("\n[bold]Your scores:[/bold]")
-    console.print("  [dim]Faithfulness     — does the RAG answer match the retrieved chunks?[/dim]")
-    console.print("  [dim]Answer Relevancy — does it directly answer the question?[/dim]")
-    console.print("  [dim]Context Recall   — was the right information in the chunks?[/dim]\n")
+    console.print("  [dim]Faithfulness     — is every claim in the RAG answer supported by the retrieved chunks?[/dim]")
+    console.print("  [dim]                   (RAGAS asks: 'is this claim backed by the context?' for each sentence)[/dim]")
+    console.print("  [dim]Answer Relevancy — does the answer directly address the question asked?[/dim]")
+    console.print("  [dim]                   (RAGAS generates fake questions from the answer and checks similarity)[/dim]")
+    console.print("  [dim]Context Recall   — did the retrieved chunks contain the information needed to answer?[/dim]")
+    console.print("  [dim]                   (RAGAS checks: could the correct answer be produced from these chunks?)[/dim]\n")
 
     faith   = ask_score("Faithfulness    ")
     rel     = ask_score("Answer Relevancy")
