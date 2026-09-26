@@ -593,6 +593,20 @@ Don't just scan numbers. For each row, ask: what is this question actually testi
 
 **When it finishes, compare to your Exercise 2 scores:**
 
+Fill in this table as you go — your hand scores from Exercise 2 on the left, RAGAS scores on the right:
+
+| Question | Your Faithfulness | RAGAS Faithfulness | Your Answer Rel. | RAGAS Answer Rel. | Your Context Recall | RAGAS Context Recall |
+|---|---|---|---|---|---|---|
+| Who directed Inception? | | | | | | |
+| Which performer received a posthumous honour...? | | | | | | |
+| What South Korean movie made history...? | | | | | | |
+| Which film features a laundromat owner...? | | | | | | |
+| Which Nolan film about a physicist...? | | | | | | |
+
+> Note: Exercise 2 only covered the first 5 questions. RAGAS covers all 10.
+
+Where you scored 1 and RAGAS scored below 0.5 — or the other way around — those are the rows worth discussing.
+
 You just scored the same answers twice — once by hand, once by RAGAS. Now look at where they disagree.
 
 For example: you scored Faithfulness = 1 for a question, but RAGAS scored it 0.3. That means you thought the answer was grounded in the chunk, but RAGAS thought it wasn't.
