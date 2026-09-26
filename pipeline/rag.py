@@ -158,7 +158,7 @@ class RAGPipeline:
         }
 
 
-# ── Manual smoke test ─────────────────────────────────────────────────────
+# ── Live demo + interactive mode ─────────────────────────────────────────
 
 if __name__ == "__main__":
     from rich.console import Console
@@ -168,7 +168,7 @@ if __name__ == "__main__":
 
     console = Console()
 
-    console.print(Rule("[bold]RAG Pipeline — smoke test[/bold]"))
+    console.print(Rule("[bold]RAG Pipeline — live demo[/bold]"))
     console.print("[dim]Building index...[/dim]")
 
     rag = RAGPipeline(top_k=3)
@@ -184,6 +184,22 @@ if __name__ == "__main__":
     for q in questions:
         result = rag.ask(q)
         console.print(f"[bold cyan]Q:[/bold cyan] {result['question']}")
+        for i, (chunk, score) in enumerate(zip(result["contexts"], result["scores"]), 1):
+            console.print(f"  [dim]chunk {i} (score {score:.2f}):[/dim] {chunk[:80]}...")
+        console.print(Panel(result["answer"], title="Answer", border_style="green"))
+        console.print()
+
+    console.print(Rule("[bold]Try your own question[/bold]"))
+    console.print("[dim]Type any movie question. Press Enter on a blank line to quit.[/dim]\n")
+    while True:
+        try:
+            q = input("Question: ").strip()
+        except (KeyboardInterrupt, EOFError):
+            break
+        if not q:
+            break
+        result = rag.ask(q)
+        console.print(f"\n[bold cyan]Q:[/bold cyan] {result['question']}")
         for i, (chunk, score) in enumerate(zip(result["contexts"], result["scores"]), 1):
             console.print(f"  [dim]chunk {i} (score {score:.2f}):[/dim] {chunk[:80]}...")
         console.print(Panel(result["answer"], title="Answer", border_style="green"))
