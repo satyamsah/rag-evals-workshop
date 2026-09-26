@@ -373,6 +373,19 @@ Q: Who directed Inception?
 Answer: Inception was directed by Christopher Nolan.
 ```
 
+The process:
+1. The question gets embedded into a vector by `all-MiniLM-L6-v2` (the small embedding model)
+2. Each document chunk was already embedded into a vector when you built the index
+3. FAISS computes the cosine similarity between the question vector and every chunk vector — that's just a dot product, pure arithmetic
+4. Returns the top 3 highest scores
+
+No LLM call here — this is pure math, which is why retrieval takes milliseconds while generation takes seconds.
+
+The score ranges:
+- **0.7–1.0** — strong match, likely contains the answer
+- **0.4–0.6** — loosely related
+- **below 0.4** — probably not relevant
+
 **Stuck?** The lines are all there in `exercise.py` — just commented out. Uncomment one at a time.
 
 > **Once Exercise 1 is complete:** the full working version lives in `pipeline/rag.py`. Exercises 2, 3, and 4 import `RAGPipeline` from it automatically — you don't need to touch it again.
