@@ -120,8 +120,8 @@ console.print(Rule("[bold]Step 1 — Baseline (top_k=3, grounding prompt on)[/bo
 console.print("[dim]Running...[/dim]")
 
 # TODO: UNCOMMENT STEP 1 AND RE-RUN
-# baseline_results = run_pipeline(top_k=3)
-# baseline_scores  = score(baseline_results, "Baseline")
+baseline_results = run_pipeline(top_k=3)
+baseline_scores  = score(baseline_results, "Baseline")
 
 
 # ── Step 2: Break A — top_k=1 ─────────────────────────────────────────────
@@ -130,8 +130,8 @@ console.print(Rule("[bold]Step 2 — Break A: top_k=1 (retrieval gets worse)[/bo
 console.print("[dim]Only 1 chunk retrieved instead of 3. Which questions are most affected?[/dim]\n")
 
 # TODO: UNCOMMENT STEP 2 AND RE-RUN
-# broken_a_results = run_pipeline(top_k=1)
-# broken_a_scores  = score(broken_a_results, "Break A: top_k=1")
+broken_a_results = run_pipeline(top_k=1)
+broken_a_scores  = score(broken_a_results, "Break A: top_k=1")
 
 
 # ── Step 3: Break B — no grounding instruction ────────────────────────────
@@ -139,6 +139,10 @@ console.print("[dim]Only 1 chunk retrieved instead of 3. Which questions are mos
 BROKEN_PROMPT = """You are a helpful assistant that answers questions about movies.
 Answer the question as best you can."""
 # ↑ grounding instruction removed — LLM can now use its training memory
+#
+# Steps 1 and 2 used rag.ask() which has this prompt in pipeline/rag.py:
+#   "Answer using ONLY the context passages provided."
+# Break B replaces that with BROKEN_PROMPT above — no grounding instruction.
 
 console.print(Rule("[bold]Step 3 — Break B: no grounding instruction (LLM goes off-script)[/bold]"))
 console.print("[dim]System prompt no longer says 'answer ONLY from context'. Which questions are most affected?[/dim]\n")
