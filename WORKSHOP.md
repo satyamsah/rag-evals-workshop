@@ -742,16 +742,6 @@ This is how you iterate on a RAG system without guessing.
 - Alert if any metric drops more than 0.05 from baseline
 - Log every retrieval + answer pair so you can audit failures manually
 
-### Live walkthrough
-
-```bash
-python pipeline/rag.py
-```
-
-Runs two demo questions, then opens an interactive prompt. Ask the room to suggest a question, type it live, show the output. That's it — they've already done the analysis in Exercises 2, 3, and 4. This is just the pipeline running end-to-end on something they chose.
-
-Close with: "This is what you'd ship. Exercises 3 and 4 are how you'd know if it's working."
-
 ---
 
 ### What you built today
