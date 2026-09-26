@@ -577,6 +577,20 @@ You will see `Evaluating: 30/30` — that is 10 questions × 3 metrics = 30 Clau
 
 So Faithfulness and Answer Relevancy can run on any RAG system with no golden dataset at all. Context Recall is the only one that needs the ground truth answers we wrote in `corpus.py`.
 
+**Concrete example — Q1: "Who directed Inception?"**
+
+RAG answer: *"Christopher Nolan directed Inception."*
+Retrieved chunks: 3 chunks about Inception (director, cast, awards)
+Ground truth: *"Christopher Nolan"*
+
+| Metric | What RAGAS actually asks | Score |
+|---|---|---|
+| Faithfulness | "Is the claim 'Christopher Nolan directed Inception' supported by the chunks?" Chunk 1 says exactly that. | 1.0 |
+| Answer Relevancy | Generates fake questions from the answer (*"Who directed Inception?"*) and checks if they match the original. They do. | ~0.95 |
+| Context Recall | "Could the correct answer 'Christopher Nolan' be produced from the retrieved chunks?" Chunk 1 contains it. | 1.0 |
+
+Three separate LLM calls. None of them ask "is this answer correct?" — each measures one specific thing about the pipeline.
+
 **How to read the table:**
 
 Don't just scan numbers. For each row, ask: what is this question actually testing?
