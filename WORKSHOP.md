@@ -528,13 +528,20 @@ python exercises/03-ragas-scores/exercise.py
 
 While it runs, predict: which 2–3 questions will score lowest?
 
-**When it finishes:**
+**When it finishes, compare to your Exercise 2 scores:**
 
-- Do the RAGAS scores match your intuition from Exercise 2?
-- Where do your hand scores and RAGAS disagree?
-- Those disagreements are the most interesting cases — they show the limits of automated scoring.
+You just scored the same answers twice — once by hand, once by RAGAS. Now look at where they disagree.
 
-> **Discussion prompt:** "For the questions where you scored 1 and RAGAS scored 0.3 — who was right? What did RAGAS miss? What did you miss?"
+For example: you scored Faithfulness = 1 for a question, but RAGAS scored it 0.3. That means you thought the answer was grounded in the chunk, but RAGAS thought it wasn't.
+
+Now ask yourself: who was right?
+
+- Maybe **you were too lenient** — you read the answer quickly and missed that the LLM added a small detail that wasn't actually in the retrieved chunk
+- Maybe **RAGAS was too strict** — the LLM paraphrased the chunk slightly and RAGAS penalised it, even though the meaning was the same
+
+There is no single right answer. That is the point.
+
+**The lesson:** automated scores are fast and consistent, but they are not perfect. Your human judgement catches things RAGAS misses. RAGAS catches things you miss when reading quickly. You need both — and you need to understand where each one fails before you trust either one in production.
 
 ---
 
