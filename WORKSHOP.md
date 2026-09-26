@@ -572,7 +572,7 @@ You will see `Evaluating: 30/30` — that is 10 questions × 3 metrics = 30 Clau
 | Metric | What it compares | Uses ground truth? | How |
 |---|---|---|---|
 | Faithfulness | RAG answer vs retrieved chunks | No | Haiku breaks the answer into statements, checks each one against the chunks. Score = fraction of statements supported. |
-| Answer Relevancy | Question vs RAG answer | No | Haiku generates paraphrase questions from the answer, embedding model measures similarity to the original question. High similarity = answer was on-topic. |
+| Answer Relevancy | Question vs RAG answer | No | Haiku generates paraphrase questions from the answer, embedding model measures similarity to the original question. If the generated questions look nothing like the original, the answer was off-topic. |
 | Context Recall | Retrieved chunks vs ground truth | Yes | Haiku checks whether the ground truth answer is covered by the retrieved chunks. Score = how much of the ground truth is present. |
 
 So Faithfulness and Answer Relevancy can run on any RAG system with no golden dataset at all. Context Recall is the only one that needs the ground truth answers we wrote in `corpus.py`.
@@ -586,7 +586,7 @@ Ground truth: *"Christopher Nolan"*
 | Metric | What RAGAS actually asks | Score |
 |---|---|---|
 | Faithfulness | "Is the claim 'Christopher Nolan directed Inception' supported by the chunks?" Chunk 1 says exactly that. | 1.0 |
-| Answer Relevancy | Generates fake questions from the answer (*"Who directed Inception?"*) and checks if they match the original. They do. | ~0.95 |
+| Answer Relevancy | Generates paraphrase questions from the answer (*"Who was the director of Inception?"*, *"What did Christopher Nolan direct?"*) and checks if they resemble the original question. They do. | ~0.95 |
 | Context Recall | "Could the correct answer 'Christopher Nolan' be produced from the retrieved chunks?" Chunk 1 contains it. | 1.0 |
 
 Three separate LLM calls. None of them ask "is this answer correct?" — each measures one specific thing about the pipeline.
