@@ -246,13 +246,15 @@ This is what allows us to match a question like *"Who directed Inception?"* to a
 
 ### FAISS — the vector index
 
+FAISS stands for **Facebook AI Similarity Search**. It is an open-source library that stores vectors and lets you search them very fast.
+
 Once we have vectors for all our chunks, we store them in FAISS for fast search.
 
 ```
   Document chunks
         │
         ▼  embed each chunk
-  Vectors (float32)
+  Vectors (float32)    ← decimal numbers in a format FAISS can read
         │
         ▼  store in FAISS
   Vector index
