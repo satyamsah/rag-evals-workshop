@@ -120,8 +120,8 @@ console.print(Rule("[bold]Step 1 — Baseline (top_k=3, grounding prompt on)[/bo
 console.print("[dim]Running...[/dim]")
 
 # TODO: UNCOMMENT STEP 1 AND RE-RUN
-baseline_results = run_pipeline(top_k=3)
-baseline_scores  = score(baseline_results, "Baseline")
+# baseline_results = run_pipeline(top_k=3)
+# baseline_scores  = score(baseline_results, "Baseline")
 
 
 # ── Step 2: Break A — top_k=1 ─────────────────────────────────────────────
@@ -130,8 +130,8 @@ console.print(Rule("[bold]Step 2 — Break A: top_k=1 (retrieval gets worse)[/bo
 console.print("[dim]Only 1 chunk retrieved instead of 3. Which questions are most affected?[/dim]\n")
 
 # TODO: UNCOMMENT STEP 2 AND RE-RUN
-broken_a_results = run_pipeline(top_k=1)
-broken_a_scores  = score(broken_a_results, "Break A: top_k=1")
+# broken_a_results = run_pipeline(top_k=1)
+# broken_a_scores  = score(broken_a_results, "Break A: top_k=1")
 
 
 # ── Step 3: Break B — no grounding instruction ────────────────────────────
