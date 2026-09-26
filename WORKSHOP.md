@@ -585,19 +585,39 @@ Don't just scan numbers. For each row, ask: what is this question actually testi
 
 - **Q2, Q3, Q4** — Answer Relevancy is low (0.3–0.5). These are indirect questions with vague wording. Here is why:
 
-  **Q2:** "Which performer received a posthumous honour for a villain role?"
-  Retrieved chunk: *"Heath Ledger plays the Joker in The Dark Knight. Ledger won a posthumous Academy Award for Best Supporting Actor..."* (score 0.42 — weak match)
-  The chunk has the answer but the low similarity score means the retriever barely found it. The RAG answer hedges: something like "Heath Ledger received a posthumous award" — technically correct but vague, not directly answering "which performer for a villain role." Answer Relevancy drops.
+---
 
-  **Q3:** "What South Korean movie made history at the Oscars?"
-  Top retrieved chunk: *"Mad Max: Fury Road won six Academy Awards..."* (score 0.43 — wrong movie entirely)
-  The right chunk (Parasite) was retrieved at position 3 with score 0.40. With three competing chunks about different Oscar-winning films, the LLM gives a mixed answer instead of a direct one.
+**Q2: "Which performer received a posthumous honour for a villain role?"**
 
-  **Q4:** "Which film features a laundromat owner travelling across parallel universes?"
-  Top chunk: *"Everything Everywhere All at Once (2022) is directed by the Daniels..."* (score 0.45)
-  The right chunk was retrieved but the answer tends to describe the film rather than directly answer — "Everything Everywhere All at Once features Michelle Yeoh as a laundromat owner" rather than just naming the film cleanly.
+Retrieved chunk:
+> *"Heath Ledger plays the Joker in The Dark Knight. Ledger won a posthumous Academy Award for Best Supporting Actor..."*
+> (score 0.42 — weak match)
 
-  **The pattern:** indirect questions get weak retrieval scores, which leads to vague answers, which RAGAS flags as low Answer Relevancy. The problem starts at the question wording, not the pipeline.
+The chunk has the answer but the low similarity score means the retriever barely found it. The RAG answer hedges — something like *"Heath Ledger received a posthumous award"* — technically correct but vague, not directly answering "which performer for a villain role." Answer Relevancy drops.
+
+---
+
+**Q3: "What South Korean movie made history at the Oscars?"**
+
+Top retrieved chunk:
+> *"Mad Max: Fury Road won six Academy Awards..."*
+> (score 0.43 — wrong movie entirely)
+
+The right chunk (Parasite) was retrieved at position 3 with score 0.40. With three competing chunks about different Oscar-winning films, the LLM gives a mixed answer instead of a direct one.
+
+---
+
+**Q4: "Which film features a laundromat owner travelling across parallel universes?"**
+
+Top chunk:
+> *"Everything Everywhere All at Once (2022) is directed by the Daniels..."*
+> (score 0.45)
+
+The right chunk was retrieved but the answer tends to describe the film rather than directly answer — *"Everything Everywhere All at Once features Michelle Yeoh as a laundromat owner"* rather than just naming the film cleanly.
+
+---
+
+**The pattern:** indirect questions get weak retrieval scores, which leads to vague answers, which RAGAS flags as low Answer Relevancy. The problem starts at the question wording, not the pipeline.
 
 - **Faithfulness stays high (0.75–1.0) across almost all rows.** The LLM is mostly staying within the retrieved chunks. The problem is retrieval and relevancy, not hallucination.
 
