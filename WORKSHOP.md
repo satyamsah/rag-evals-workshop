@@ -748,14 +748,9 @@ This is how you iterate on a RAG system without guessing.
 python pipeline/rag.py
 ```
 
-This runs two demo questions first, then drops into an interactive prompt where you can type any movie question and see the full pipeline output — chunks retrieved, similarity scores, and the generated answer.
+Runs two demo questions, then opens an interactive prompt. Ask the room to suggest a question, type it live, show the output. That's it — they've already done the analysis in Exercises 2, 3, and 4. This is just the pipeline running end-to-end on something they chose.
 
-**Run it on your screen** and ask the room to suggest a question. Type it live. Point out:
-- Which chunks were retrieved and why (similarity scores)
-- What score 0.72 looks like vs 0.40 — is the right chunk at the top?
-- Whether the answer uses the chunk text or ignores it
-
-Then ask the room: "what would you change to make this better?"
+Close with: "This is what you'd ship. Exercises 3 and 4 are how you'd know if it's working."
 
 ---
 
