@@ -49,7 +49,7 @@ embed_model = LangchainEmbeddingsWrapper(HuggingFaceEmbeddings(model_name="all-M
 
 # ── Helper: score a list of results with RAGAS ────────────────────────────
 
-def score(results):
+def score(results, label):
     dataset = EvaluationDataset(samples=[
         SingleTurnSample(
             user_input=r["question"],
@@ -62,7 +62,25 @@ def score(results):
     out = evaluate(dataset, metrics=[faithfulness, answer_relevancy, context_recall],
                    llm=judge_llm, embeddings=embed_model, raise_exceptions=False)
     df = out.to_pandas()
-    return {k: round(df[k].dropna().mean(), 3) for k in ["faithfulness", "answer_relevancy", "context_recall"]}
+
+    # per-question table
+    table = Table(show_header=True, header_style="bold", title=f"[bold]{label} — per question[/bold]")
+    table.add_column("Question", style="cyan", max_width=40)
+    table.add_column("Faithfulness",     justify="right")
+    table.add_column("Answer Relevancy", justify="right")
+    table.add_column("Context Recall",   justify="right")
+    for _, row in df.iterrows():
+        table.add_row(
+            row["user_input"][:39],
+            _fmt(row.get("faithfulness")),
+            _fmt(row.get("answer_relevancy")),
+            _fmt(row.get("context_recall")),
+        )
+    console.print(table)
+
+    agg = {k: round(df[k].dropna().mean(), 3) for k in ["faithfulness", "answer_relevancy", "context_recall"]}
+    console.print(f"  Aggregate — Faithfulness: {_fmt(agg['faithfulness'])}  Answer Relevancy: {_fmt(agg['answer_relevancy'])}  Context Recall: {_fmt(agg['context_recall'])}\n")
+    return agg
 
 
 def run_pipeline(top_k=3, system_prompt=None):
@@ -89,6 +107,8 @@ def run_pipeline(top_k=3, system_prompt=None):
 
 
 def _fmt(v):
+    if v is None or str(v) == "nan":
+        return "[dim]—[/dim]"
     f = float(v)
     c = "green" if f >= 0.7 else ("yellow" if f >= 0.4 else "red")
     return f"[{c}]{f:.2f}[/{c}]"
@@ -101,23 +121,17 @@ console.print("[dim]Running...[/dim]")
 
 # TODO: UNCOMMENT STEP 1 AND RE-RUN
 # baseline_results = run_pipeline(top_k=3)
-# baseline_scores  = score(baseline_results)
-# console.print(f"Faithfulness:     {_fmt(baseline_scores['faithfulness'])}")
-# console.print(f"Answer Relevancy: {_fmt(baseline_scores['answer_relevancy'])}")
-# console.print(f"Context Recall:   {_fmt(baseline_scores['context_recall'])}\n")
+# baseline_scores  = score(baseline_results, "Baseline")
 
 
 # ── Step 2: Break A — top_k=1 ─────────────────────────────────────────────
 
 console.print(Rule("[bold]Step 2 — Break A: top_k=1 (retrieval gets worse)[/bold]"))
-console.print("[dim]Only 1 chunk retrieved instead of 3. Which metric drops?[/dim]\n")
+console.print("[dim]Only 1 chunk retrieved instead of 3. Which questions are most affected?[/dim]\n")
 
 # TODO: UNCOMMENT STEP 2 AND RE-RUN
 # broken_a_results = run_pipeline(top_k=1)
-# broken_a_scores  = score(broken_a_results)
-# console.print(f"Faithfulness:     {_fmt(broken_a_scores['faithfulness'])}")
-# console.print(f"Answer Relevancy: {_fmt(broken_a_scores['answer_relevancy'])}")
-# console.print(f"Context Recall:   {_fmt(broken_a_scores['context_recall'])}\n")
+# broken_a_scores  = score(broken_a_results, "Break A: top_k=1")
 
 
 # ── Step 3: Break B — no grounding instruction ────────────────────────────
@@ -127,14 +141,11 @@ Answer the question as best you can."""
 # ↑ grounding instruction removed — LLM can now use its training memory
 
 console.print(Rule("[bold]Step 3 — Break B: no grounding instruction (LLM goes off-script)[/bold]"))
-console.print("[dim]System prompt no longer says 'answer ONLY from context'. Which metric drops?[/dim]\n")
+console.print("[dim]System prompt no longer says 'answer ONLY from context'. Which questions are most affected?[/dim]\n")
 
 # TODO: UNCOMMENT STEP 3 AND RE-RUN
 # broken_b_results = run_pipeline(system_prompt=BROKEN_PROMPT)
-# broken_b_scores  = score(broken_b_results)
-# console.print(f"Faithfulness:     {_fmt(broken_b_scores['faithfulness'])}")
-# console.print(f"Answer Relevancy: {_fmt(broken_b_scores['answer_relevancy'])}")
-# console.print(f"Context Recall:   {_fmt(broken_b_scores['context_recall'])}\n")
+# broken_b_scores  = score(broken_b_results, "Break B: no grounding")
 
 
 # ── Step 4: Summary table ─────────────────────────────────────────────────
