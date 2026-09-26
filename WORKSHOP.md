@@ -430,7 +430,31 @@ question?
   The answer is vague or off-topic
 ```
 
-### Quick reference card
+### Apply the tree — real examples
+
+**Failure 1 — Context Recall problem**
+
+> Q: "Who plays Evelyn in Everything Everywhere All at Once?"
+> Retrieved: "Everything Everywhere All at Once won seven Academy Awards."
+
+The chunk is related to the movie but doesn't contain the answer. The right chunk was never retrieved.
+
+**Failure 2 — Faithfulness problem**
+
+> Q: "How many Oscars did Oppenheimer win?"
+> Retrieved: "Oppenheimer won seven Academy Awards."
+> Answer: "Oppenheimer won 13 Academy Awards."
+
+The right chunk was retrieved. The LLM ignored it and answered from its own memory instead.
+
+**Failure 3 — Answer Relevancy problem**
+
+> Q: "Who composed the score for Interstellar?"
+> Answer: "Hans Zimmer is a famous film composer known for many works."
+
+The right chunk was retrieved and the answer is technically grounded — but it doesn't directly answer the question. It should say: "Hans Zimmer composed the score for Interstellar."
+
+> **Presenter note:** show these one at a time. For each one, ask the room "which failure is this?" before revealing. Give them 20 seconds to think. This is the most important 5 minutes before Exercise 2.
 
 | What you observe | Metric signal | Where to look |
 |---|---|---|
