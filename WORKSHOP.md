@@ -565,6 +565,18 @@ python exercises/03-ragas-scores/exercise.py
 
 While it runs, predict: which 2–3 questions will score lowest?
 
+**How are the scores calculated?**
+
+You will see `Evaluating: 30/30` — that is 10 questions × 3 metrics = 30 Claude haiku judge calls. Here is exactly what each metric does:
+
+| Metric | What it compares | Uses ground truth? | How |
+|---|---|---|---|
+| Faithfulness | RAG answer vs retrieved chunks | No | Haiku breaks the answer into statements, checks each one against the chunks. Score = fraction of statements supported. |
+| Answer Relevancy | Question vs RAG answer | No | Haiku generates paraphrase questions from the answer, embedding model measures similarity to the original question. High similarity = answer was on-topic. |
+| Context Recall | Retrieved chunks vs ground truth | Yes | Haiku checks whether the ground truth answer is covered by the retrieved chunks. Score = how much of the ground truth is present. |
+
+So Faithfulness and Answer Relevancy can run on any RAG system with no golden dataset at all. Context Recall is the only one that needs the ground truth answers we wrote in `corpus.py`.
+
 **How to read the table:**
 
 Don't just scan numbers. For each row, ask: what is this question actually testing?
